@@ -1,0 +1,9 @@
+<div class="editor">
+    <div
+        class="text-input is-noto"
+        contentEditable="true"
+        autofocus
+    >
+        Velká řeka málo kdy splývá v jeden pokoj.
+    </div>
+<div>

@@ -1,0 +1,15 @@
+
+/* Spans the whole screen. */
+.editor {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Is inside the editor. Let's user write text. */
+.editor .text-input {
+    min-width: 10rem;
+    font-size: 5rem;
+}

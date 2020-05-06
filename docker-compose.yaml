@@ -1,0 +1,26 @@
+version: '3.7'
+
+volumes:
+    postgres:
+
+services:
+    sencomp:
+        container_name: sencomp
+        depends_on:
+            - sencomp-postgres
+        build: .
+        ports:
+            - "4000:4000"
+        environment:
+            - DB_HOST=sencomp-postgres
+        command:
+            - ./run.sh
+        volumes:
+            - type: bind
+              source: .
+              target: /app
+    sencomp-postgres:
+        container_name: sencomp-postgres
+        image: postgres
+        volumes:
+            - postgres:/var/lib/postgresql/data

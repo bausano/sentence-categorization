@@ -1,0 +1,12 @@
+/**
+ * Import the font for sentence input.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap');
+
+@import 'editor.css';
+
+.is-noto {
+    font-family: 'Noto Serif', serif;
+}
+
