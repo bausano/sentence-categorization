@@ -8,8 +8,70 @@
     align-items: center;
 }
 
-/* Is inside the editor. Let's user write text. */
+/* Is inside the editor. Let's user type their sentence. */
 .editor .text-input {
-    min-width: 10rem;
-    font-size: 5rem;
+    background-color: #f9f9f9;
+
+    /* Mobile sizes. */
+    font-size: 1.5rem;
+    line-height: 2.8rem;
+    min-width: 5rem;
+}
+
+.editor .hint {
+    text-align: center;
+    color: grey;
+}
+
+/* By default this element is hidden. It is shown with JS when the user starts
+typing. */
+.editor .hint .press-enter {
+    display: none;
+}
+
+.editor .hint .start-typing::after {
+    content: '\25BE \A';
+    font-size: 2rem;
+    white-space: pre;
+    position: relative;
+
+    /* Mobile sizes. */
+    top: -10px;
+}
+
+/* Tablet sizes. */
+@media only screen and (min-width: 768px) {
+    .editor .text-input {
+        margin: auto 1rem;
+        min-width: 10rem;
+        font-size: 2.5rem;
+        min-height: 2.5rem;
+        line-height: normal;
+    }
+
+    .editor .hint {
+        margin-bottom: 0.5rem;
+    }
+
+    .editor .hint .start-typing::after {
+        top: -7px;
+    }
+}
+
+/* Desktop sizes. */
+@media only screen and (min-width: 1216px) {
+    .editor .text-input {
+        margin: auto 2rem;
+        font-size: 4rem;
+        min-height: 5.25rem;
+    }
+
+    .editor .hint {
+        margin-bottom: 1rem;
+    }
+
+    .editor .hint .start-typing::after {
+        top: -2px;
+        font-size: 1.5rem;
+    }
 }
