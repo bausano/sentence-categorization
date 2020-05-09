@@ -1,31 +1,31 @@
 <div class="editor">
     <div>
-        <div class="hint" id="hint">
+        <div class="hints" id="hint">
             <div class="start-categorizing fade-out">
-                <%= gettext "Hover, click or highlight the words to categorize them" %>
+                <%= gettext "Hover, click or highlight the words to categorize them." %>
             </div>
             <div class="press-enter fade-out">
                 &#9166;
-                <%= gettext "Press enter when you're ready to categorize sentence elements" %>
+                <%= gettext "Press enter when you're ready to categorize sentence elements." %>
             </div>
             <div class="start-typing">
                 <%= gettext "Start typing here" %>
                 <br>
             </div>
         </div>
+    </div>
+    <div class="interactive">
         <div
             id="editor-input"
             class="text-input sentence-size"
             contentEditable="true"
             spellcheck="false"
         >
-            <%#  %>
         </div>
         <div
             id="editor-categorizer"
             class="categorizer sentence-size hidden"
         >
-            <%#  %>
         </div>
     </div>
 <div>

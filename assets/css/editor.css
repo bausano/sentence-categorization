@@ -2,29 +2,24 @@
 /* Spans the whole screen. */
 .editor {
     width: 100%;
-    height: 100vh;
+}
+
+/* ------------------------------------ Hints ------------------------------- */
+
+.editor .hints {
     display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Is inside the editor. Let's user type their sentence. */
-.editor .text-input {
-    background-color: #f9f9f9;
-}
-
-.editor .hint {
-    text-align: center;
+    align-items: flex-end;
+    flex-wrap: wrap;
     color: #595959;
+    height: 100px;
 }
 
-/* .editor .hint .start-typing {
-    transition: all 1s;
-    visibility: visible;
-    opacity: 1.0;
-} */
+.editor .hints div {
+    width: 100%;
+    text-align: center;
+}
 
-.editor .hint .start-typing::after {
+.editor .hints .start-typing::after {
     content: '\25BE \A';
     font-size: 2rem;
     white-space: pre;
@@ -34,24 +29,134 @@
     top: -10px;
 }
 
+/* ----------------------------------- Text area ---------------------------- */
+
+.editor .interactive {
+    display: flex;
+    justify-content: center;
+}
+
+/* Is inside the editor. Let's user type their sentence. */
+.editor .interactive .text-input {
+    background-color: #f9f9f9;
+    display: inline-block;
+}
+
+/* -------------------------------- Categorization -------------------------- */
+
+.editor .categorizer .is-categorizable {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s;
+}
+
+.editor .categorizer .is-categorizable:hover {
+    padding-bottom: 0.1rem;
+    font-size: 105%;
+}
+
+.editor .categorizer .is-categorizable .category {
+    font-size: 0.75rem;
+    color: #595959;
+
+    /* Prevents the category from being selected. */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.editor .categorizer .is-categorizable:hover .category {
+    color: black;
+}
+
+.editor .categorizer .is-categorizable .category span {
+    background-color: #f9f9f9;
+    padding: 0.1rem 1rem;
+}
+
+.editor .categorizer .is-categorizable .select-category {
+    position: absolute;
+    font-size: 1rem;
+    text-align: left;
+
+    /* Positions the select box in the middle of the word. */
+    left: 50%;
+    transform:translate(-50%, 0%);
+    margin: auto;
+    margin-top: 1rem;
+
+}
+
+.editor .categorizer .is-categorizable .select-category select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: 0.1rem solid #d1d1d1;
+    border-radius: 0.4rem;
+    box-shadow: none;
+    box-sizing: inherit;
+    padding: 0.25rem 1rem;
+}
+
+/**
+ * Various different styles for categories. From the styling POV it's arbitrary
+ * which category is represented by which styling.
+ */
+
+.editor .categorizer .is-categorizable.is-cat-0 {
+    color: #595959;
+}
+
+.editor .categorizer .is-categorizable.is-cat-1 {
+    border-bottom: 4px solid #fccff4;
+}
+
+.editor .categorizer .is-categorizable.is-cat-2 {
+    border-bottom: 4px dotted #bcb0ee;
+}
+
+.editor .categorizer .is-categorizable.is-cat-3 {
+    border-bottom: 4px dashed #a6d5fd;
+}
+
+.editor .categorizer .is-categorizable.is-cat-4 {
+    border-bottom: 4px double #b4f1b3;
+}
+
+.editor .categorizer .is-categorizable.is-cat-5 {
+    border-bottom: 4px groove #fff8bb;
+}
+
+.editor .categorizer .is-categorizable.is-cat-6 {
+    border-bottom: 4px ridge #f2b6ae;
+}
+
+/* ---------------------------------- Responsive ---------------------------- */
+
 /* Tablet sizes. */
 @media only screen and (min-width: 768px) {
-    .editor .hint {
+    .editor .hints {
         margin-bottom: 0.5rem;
     }
 
-    .editor .hint .start-typing::after {
+    .editor .hints .start-typing::after {
         top: -7px;
     }
 }
 
 /* Desktop sizes. */
 @media only screen and (min-width: 1216px) {
-    .editor .hint {
+    .editor .hints {
         margin-bottom: 1rem;
     }
 
-    .editor .hint .start-typing::after {
+    .editor .hints .start-typing::after {
         top: -2px;
         font-size: 1.5rem;
     }
