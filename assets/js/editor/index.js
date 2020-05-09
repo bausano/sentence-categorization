@@ -2,65 +2,7 @@
 // text before they go and categorize the sentence.
 
 import { splitIntoTerms } from './Term'
-
-// ------------------------------- Constants -----------------------------------
-const CATEGORY_TREE = [
-    {
-        id: 0,
-        name: 'Bez kategorie',
-        shortName: null,
-        class: null,
-    },
-    {
-        id: 1,
-        name: 'Podmět',
-        shortName: 'Pod.',
-        classes: ['is-cat-1'],
-    },
-    {
-        name: 'Přísudek',
-        classes: ['is-cat-2'],
-        children: [
-            { name: 'slovesný', shortName: 'Př.', id: 2 },
-            { name: 'jmenný', shortName: 'Př. jm.', id: 3 },
-            { name: 'slovesně jmenný', shortName: 'Př. jm. se sp.', id: 4 },
-        ],
-    },
-    {
-        id: 5,
-        name: 'Doplněk',
-        shortName: 'Do.',
-        classes: ['is-cat-3'],
-    },
-    {
-        name: 'Příslovečné určení',
-        classes: ['is-cat-4'],
-        children: [
-            { name: 'místa', shortName: 'Pří. urč. mís.', id: 6 },
-            { name: 'času', shortName: 'Pří. urč. č.', id: 7 },
-            { name: 'způsobu', shortName: 'Pří. urč. zp.', id: 8 },
-            { name: 'příčiny', shortName: 'Pří. urč. příč.', id: 9 },
-            { name: 'míry', shortName: 'Pří. urč. mír.', id: 10 },
-            { name: 'účelu', shortName: 'Pří. urč. úč.', id: 11 },
-            { name: 'přípustky', shortName: 'Pří. urč. příp.', id: 12 },
-            { name: 'podmínky', shortName: 'Pří. urč. pod.', id: 13 },
-        ],
-    },
-    {
-        id: 14,
-        name: 'Předmět',
-        shortName: 'Před.',
-        classes: ['is-cat-5'],
-    },
-    {
-        name: 'Přívlastek',
-        classes: ['is-cat-6'],
-        children: [
-            { name: 'shodný', shortName: 'Přív. shod.', id: 15 },
-            { name: 'neshodný', shortName: 'Přív. neshod.', id: 16 },
-        ],
-    },
-]
+import { CategorySelector } from './CategorySelector'
 
 // ------------------------------- Settings ------------------------------------
 
@@ -81,12 +23,15 @@ const HINT_START_CATEGORIZING = 'start-categorizing'
 const ACTION_TIMEOUT_MS = 1500
 // The id attribute of the html element where the user selects categories.
 const EDITOR_CATEGORIZER_ID = 'editor-categorizer'
+// The id attribute of the html element where the user clicks on category name.
+const CATEGORY_SELECTOR_ID = 'select-category'
 
 // ------------------------------- HTML Elements -------------------------------
 
 const input = document.getElementById(EDITOR_INPUT_ID)
 const hint = document.getElementById(HINT_ID)
 const categorizer = document.getElementById(EDITOR_CATEGORIZER_ID)
+const categorySelector = new CategorySelector(CATEGORY_SELECTOR_ID)
 const hints = {
     startTyping: {
         el: hint.querySelector(`.${HINT_START_TYPING_CLASS}`),
@@ -106,7 +51,7 @@ input.addEventListener('keydown', (e) => {
         hints.pressEnter.classList.remove('fade-in')
 
         // Grab all terms from the sentence.
-        const terms = splitIntoTerms(CATEGORY_TREE, input.textContent)
+        const terms = splitIntoTerms(categorySelector, input.textContent)
         for (const term of terms) {
             categorizer.appendChild(term.node)
         }

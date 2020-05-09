@@ -1,3 +1,5 @@
+import { CategorySelector } from "./CategorySelector"
+
 /**
  * A term is a stand alone part of a sentence. The goal of this abstraction is
  * to separate standalone words which can be categorized and other constructs
@@ -11,51 +13,34 @@ export class Term {
     /**
      * Creates a new sentence term. It stores information that the user input.
      *
-     * @param {array} categoryTree Categories which can be attributed
+     * @param {array} categorySelector
      * @param {string} text What text does this term represent. It can be a
      *                      word, space, a comma, question mark, etc
      * @param {boolean} isCategorizable Whether this term is grammatically
      *                                  categorizable. Has to be a word
      */
-    constructor(categoryTree, text, isCategorizable) {
+    constructor(categorySelector, text, isCategorizable) {
         this.category = null
         this.text = text
+        this.categorySelector = categorySelector
+
         if (!isCategorizable) {
             this.node = document.createTextNode(this.text)
         } else {
-            this.node = createCategorizableNode(
-                categoryTree, text, v => this.updateCategory(v)
-            )
+            this.node = createCategorizableNode(this)
         }
-
-        // Read only reference to the global category object.
-        this.categoryTree = categoryTree
     }
 
     /**
      * Updates the category of this term.
      *
      * @param {number|string} id The id of the category
+     * @param {string} shortName The string to display above the term
+     * @param {string[]} classes Additional classes to assign to the term
      */
-    updateCategory(id) {
+    updateCategory(id, shortName, classes) {
         this.category = id
-
-        let shortName = null
-        const classes = ['is-categorizable']
-        for (const cat of this.categoryTree) {
-            if (cat.hasOwnProperty('children')) {
-                const child = cat.children.find(c => c.id == id)
-                if (child) {
-                    classes.push(...cat.classes)
-                    shortName = child.shortName
-                    break
-                }
-            } else if (cat.id == id) {
-                classes.push(...(cat.classes || ['is-cat-0']))
-                shortName = cat.shortName
-                break
-            }
-        }
+        classes.push('is-categorizable')
 
         const categoryNode = this.node.querySelector('.category')
         if (!shortName) {
@@ -76,11 +61,11 @@ export class Term {
 }
 
 /**
- * @param {array} categoryTree Categories which can be attributed
+ * @param {CategorySelector} categorySelector
  * @param {string} sentence An input sentence which will be split into terms
  * @returns {Term[]} Ordered list of terms
  */
-export function splitIntoTerms(categoryTree, sentence) {
+export function splitIntoTerms(categorySelector, sentence) {
     return sentence
         .trim()
         .split(' ')
@@ -93,15 +78,15 @@ export function splitIntoTerms(categoryTree, sentence) {
             // second group.
             const separateWordAndTrailingSign = /(.+)(\!|\.|\,|\?)$/.exec(part)
             if (separateWordAndTrailingSign !== null) {
-                terms.push(new Term(categoryTree, separateWordAndTrailingSign[1], true))
-                terms.push(new Term(categoryTree, separateWordAndTrailingSign[2], false))
+                terms.push(new Term(categorySelector, separateWordAndTrailingSign[1], true))
+                terms.push(new Term(categorySelector, separateWordAndTrailingSign[2], false))
             } else {
-                terms.push(new Term(categoryTree, part, true))
+                terms.push(new Term(categorySelector, part, true))
             }
 
             const isLastEl = a.length - 1 === i
             if (!isLastEl) {
-                terms.push(new Term(categoryTree, ' ', false))
+                terms.push(new Term(categorySelector, ' ', false))
             }
 
             return terms
@@ -113,12 +98,10 @@ export function splitIntoTerms(categoryTree, sentence) {
  * Creates a new HTML node for given term text, and adds a listener which calls
  * given closure when user updates category.
  *
- * @param {array} categoryTree Global tree of all categories
- * @param {string} text The term text
- * @param {(value: number) => void} selectChanged A hook for when user selects category
+ * @param {Term} term
  * @return {HTMLDivElement}
  */
-function createCategorizableNode(categoryTree, text, selectChanged) {
+function createCategorizableNode(term) {
     const termNode = document.createElement('div')
     termNode.classList.add('is-categorizable')
     termNode.classList.add('is-cat-0')
@@ -128,57 +111,16 @@ function createCategorizableNode(categoryTree, text, selectChanged) {
     termNode.appendChild(categoryNode)
 
     const termNameNode = document.createElement('div')
-    termNameNode.textContent = text
+    termNameNode.textContent = term.text
     termNode.appendChild(termNameNode)
 
-    const selectNode = document.createElement('div')
-    selectNode.classList.add('select-category')
-    selectNode.classList.add('hidden')
-
-    const select = document.createElement('select')
-    for (const cat of categoryTree) {
-        if (cat.hasOwnProperty('children')) {
-            const optGroup = document.createElement('optgroup')
-            optGroup.setAttribute('label', cat.name)
-            for (const child of cat.children) {
-                optGroup.appendChild(
-                    createCategoryOption(child.id, child.name, child.shortName)
-                )
-            }
-            select.appendChild(optGroup)
-        } else {
-            select.appendChild(
-                createCategoryOption(cat.id, cat.name, cat.shortName)
-            )
-        }
-    }
-
-    selectNode.appendChild(select)
-    termNode.appendChild(selectNode)
-
-    // When the select input is changed, update the category appropriately.
-    select.addEventListener('change', (_) => {
-        selectNode.classList.add('hidden')
-        selectChanged(select.value)
+    termNameNode.addEventListener('click', (_) => {
+        term.categorySelector.termClicked(term)
     })
 
-    // Shows the select category box when the term is clicked.
-    termNameNode.addEventListener('click', (_) => selectNode.classList.toggle('hidden'))
+    termNode.addEventListener('mouseenter', (_) => {
+        term.categorySelector.termHovered(term)
+    })
 
     return termNode
-}
-
-/**
- * Creates new HTML node for option.
- *
- * @param {number} id
- * @param {string} name
- * @param {string} shortName Appends this text to attribute "data-short-name"
- */
-function createCategoryOption(id, name, shortName) {
-    const option = document.createElement('option')
-    option.setAttribute('value', id)
-    option.setAttribute('data-short-name', shortName)
-    option.text = name
-    return option
 }

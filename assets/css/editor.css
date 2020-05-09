@@ -34,6 +34,7 @@
 .editor .interactive {
     display: flex;
     justify-content: center;
+    position: relative;
 }
 
 /* Is inside the editor. Let's user type their sentence. */
@@ -44,17 +45,77 @@
 
 /* -------------------------------- Categorization -------------------------- */
 
+.editor .select-category {
+    position: absolute;
+    top: 0;
+    left: 50px;
+    font-size: 0.75rem;
+}
+
+/* All lists. */
+.editor .select-category ul {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    list-style: none;
+}
+
+/* Top level list only. */
+.editor .select-category > ul {
+    border: 1px solid #bfbfbf;
+}
+
+/* Top level items. */
+.editor .select-category > ul > li {
+    padding: 0.25rem 0.5rem;
+    border-top: 1px solid #bfbfbf;
+}
+
+/* Nested items. */
+.editor .select-category > ul > ul > li {
+    padding: 0.25rem 1rem;
+    border-left: 2px solid white;
+}
+.editor .select-category > ul > ul > li:hover {
+    border-color: black;
+}
+
+/* Unselectable group name headings. */
+.editor .select-category ul li.group-name {
+    font-weight: bold;
+}
+
+/* Selectable items. */
+.editor .select-category ul li:not(.group-name) {
+    cursor: pointer;
+}
+.editor .select-category ul li:not(.group-name):hover {
+    background-color: #f4f4f4;
+}
+
 .editor .categorizer .is-categorizable {
     position: relative;
     display: inline-block;
     cursor: pointer;
     text-align: center;
     transition: all 0.25s;
+
+    /* See the hover state of this element. */
+    padding-right: 5px
 }
 
 .editor .categorizer .is-categorizable:hover {
     padding-bottom: 0.1rem;
     font-size: 105%;
+
+    /*
+     * This is a hack to avoid issues where the word grows too much to fit on
+     * the same line, which pushes it on a new line. That removes the font grow
+     * because hover no longer applies, and the word goes back to its original
+     * position. But there's the cursor, so it grows and is pushed on a new line
+     * again. And again. And again. 100 times a second.
+     */
+    padding-right: 0;
 }
 
 .editor .categorizer .is-categorizable .category {
