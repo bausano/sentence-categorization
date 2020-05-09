@@ -102,37 +102,42 @@ const hints = {
 input.addEventListener('keydown', (e) => {
     if (e.code === 'Enter' && categorizer.classList.contains('hidden')) {
         e.preventDefault()
-        // And we hide the third hint.
-        hints.pressEnter.classList.add('hidden')
-        hint.removeChild(hints.pressEnter)
+        // We hide the second hint.
+        hints.pressEnter.classList.remove('fade-in')
 
         // Grab all terms from the sentence.
         const terms = splitIntoTerms(CATEGORY_TREE, input.textContent)
         for (const term of terms) {
             categorizer.appendChild(term.node)
         }
+
+        // Hides the input and shows the categorization screen.
         input.classList.add('hidden')
         categorizer.classList.remove('hidden')
-        // TODO: Animate fadeout.
+
+        // Animation for the third hint.
         setTimeout(() => {
-            hints.startCategorizing.classList.remove('hidden')
+            hint.removeChild(hints.pressEnter)
+            hints.startCategorizing.classList.add('fade-in')
 
             // And hide the hint after a bit again.
             setTimeout(() => {
-                hints.startCategorizing.classList.add('hidden')
-                hint.removeChild(hints.startCategorizing)
-            }, 3 * ACTION_TIMEOUT_MS)
+                hints.startCategorizing.classList.remove('fade-in')
+            }, 4 * ACTION_TIMEOUT_MS)
         }, ACTION_TIMEOUT_MS)
     }
 })
 
 input.addEventListener('keypress', () => {
-    // TODO: Animate fade out.
     if (hints.startTyping.isDisplayed) {
         hints.startTyping.isDisplayed = false
+        // Animates fading out effect.
+        hints.startTyping.el.classList.add('fade-out')
         setTimeout(() => {
             // We swap the first hint for another one.
-            setTimeout(() => hints.pressEnter.classList.remove('hidden'), ACTION_TIMEOUT_MS)
+            setTimeout(() => {
+                hints.pressEnter.classList.add('fade-in')
+            }, ACTION_TIMEOUT_MS)
 
             // Remove the previous one.
             hints.startTyping.el.classList.add('hidden')

@@ -18,6 +18,12 @@
     color: #595959;
 }
 
+/* .editor .hint .start-typing {
+    transition: all 1s;
+    visibility: visible;
+    opacity: 1.0;
+} */
+
 .editor .hint .start-typing::after {
     content: '\25BE \A';
     font-size: 2rem;
