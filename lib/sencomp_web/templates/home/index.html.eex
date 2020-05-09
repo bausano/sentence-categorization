@@ -5,15 +5,21 @@
                 <%= gettext "Start typing here" %>
                 <br>
             </div>
-            <div class="press-enter">
+            <div class="press-enter hidden">
                 <%= gettext "Press enter when you're ready to mark sentence elements" %>
             </div>
         </div>
         <div
             id="editor-input"
-            class="text-input"
+            class="text-input sentence-size"
             contentEditable="true"
             spellcheck="false"
+        >
+            <%#  %>
+        </div>
+        <div
+            id="editor-categorizer"
+            class="categorizer sentence-size hidden"
         >
             <%#  %>
         </div>

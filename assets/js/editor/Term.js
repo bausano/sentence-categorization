@@ -11,114 +11,76 @@ export class Term {
     /**
      * Creates a new sentence term. It stores information that the user input.
      *
+     * @param {array} categoryTree Categories which can be attributed
      * @param {string} text What text does this term represent. It can be a
      *                      word, space, a comma, question mark, etc
      * @param {boolean} isCategorizable Whether this term is grammatically
      *                                  categorizable. Has to be a word
      */
-    constructor(text, isCategorizable) {
+    constructor(categoryTree, text, isCategorizable) {
         this.category = null
         this.text = text
-        this.isCategorizable = isCategorizable
-    }
-
-    /**
-     * Creates a new HTMLElement node which can be inserted into the document
-     * and used to categorize this term.
-     *
-     * @param {array} categories Categories which can be attributed
-     * @return {HTMLElement}
-     */
-    termNode(categories) {
-        if (this.node) {
-            return this.node
+        if (!isCategorizable) {
+            this.node = document.createTextNode(this.text)
+        } else {
+            this.node = createCategorizableNode(
+                categoryTree, text, v => this.updateCategory(v)
+            )
         }
 
-        const termTextNode = document.createTextNode(this.text)
-
-        if (!this.isCategorizable) {
-            return termTextNode
-        }
-
-        // Stores the reference to the object of categories.
-        this.categories = categories
-
-        const termNode = document.createElement('div')
-        termNode.classList.add('is-categorizable')
-        termNode.classList.add('is-uncategorized')
-
-        const categoryNode = document.createElement('div')
-        categoryNode.classList.add('category')
-        termNode.appendChild(categoryNode)
-
-        const termNameNode = document.createElement('div')
-        termNameNode.appendChild(termTextNode)
-        termNode.appendChild(termNameNode)
-
-        const selectNode = document.createElement('div')
-        selectNode.classList.add('select-category')
-        const select = document.createElement('select')
-
-        // Maps group names to their html nodes.
-        const groups = {}
-        for (const category of categories) {
-            const option = document.createElement('option')
-            option.setAttribute('value', category.id)
-            option.text = category.name
-
-            if (category.hasOwnProperty('group')) {
-                // Creates the optgroup if it doesn't exist yet.
-                if (!groups[category.group]) {
-                    const optGroup = document.createElement('optgroup')
-                    optGroup.setAttribute('label', category.group)
-                    select.appendChild(optGroup)
-                    groups[category.group] = optGroup
-                }
-                groups[category.group].appendChild(option)
-            } else {
-                select.appendChild(option)
-            }
-        }
-
-        selectNode.appendChild(select)
-        termNode.appendChild(selectNode)
-
-        // When the select input is changed, update the category appropriately.
-        select.addEventListener('change', (_) => this.updateCategory(select.value))
-
-        // Remembers this node as the term node.
-        this.node = termNode
-
-        return termNode
+        // Read only reference to the global category object.
+        this.categoryTree = categoryTree
     }
 
     /**
      * Updates the category of this term.
      *
-     * @param {number} id The id of the category
+     * @param {number|string} id The id of the category
      */
     updateCategory(id) {
         this.category = id
-        const short = this.categories.find(c => c.id == id).short
-        const categoryNode = this.node.querySelector('.category')
 
-        if (!short) {
-            categoryNode.removeChild(categoryNode.lastChild)
+        let shortName = null
+        const classes = ['is-categorizable']
+        for (const cat of this.categoryTree) {
+            if (cat.hasOwnProperty('children')) {
+                const child = cat.children.find(c => c.id == id)
+                if (child) {
+                    classes.push(...cat.classes)
+                    shortName = child.shortName
+                    break
+                }
+            } else if (cat.id == id) {
+                classes.push(...(cat.classes || ['is-cat-0']))
+                shortName = cat.shortName
+                break
+            }
+        }
+
+        const categoryNode = this.node.querySelector('.category')
+        if (!shortName) {
+            this.node.setAttribute('class', 'is-categorizable is-cat-0')
+            // Removes the child span if it exists.
+            categoryNode.lastChild
+                && categoryNode.removeChild(categoryNode.lastChild)
         } else if (categoryNode.lastChild) {
-            categoryNode.lastChild.textContent = short
+            this.node.setAttribute('class', classes.join(' '))
+            categoryNode.lastChild.textContent = shortName
         } else {
+            this.node.setAttribute('class', classes.join(' '))
             const catSpan = document.createElement('span')
-            catSpan.textContent = short
+            catSpan.textContent = shortName
             categoryNode.appendChild(catSpan)
         }
     }
 }
 
 /**
+ * @param {array} categoryTree Categories which can be attributed
  * @param {string} sentence An input sentence which will be split into terms
  * @returns {Term[]} Ordered list of terms
  */
-export function splitIntoTerms(sentence) {
+export function splitIntoTerms(categoryTree, sentence) {
     return sentence
         .trim()
         .split(' ')
@@ -131,18 +93,92 @@ export function splitIntoTerms(sentence) {
             // second group.
             const separateWordAndTrailingSign = /(.+)(\!|\.|\,|\?)$/.exec(part)
             if (separateWordAndTrailingSign !== null) {
-                terms.push(new Term(separateWordAndTrailingSign[1], true))
-                terms.push(new Term(separateWordAndTrailingSign[2], false))
+                terms.push(new Term(categoryTree, separateWordAndTrailingSign[1], true))
+                terms.push(new Term(categoryTree, separateWordAndTrailingSign[2], false))
             } else {
-                terms.push(new Term(part, true))
+                terms.push(new Term(categoryTree, part, true))
             }
 
             const isLastEl = a.length - 1 === i
             if (!isLastEl) {
-                terms.push(new Term(' ', false))
+                terms.push(new Term(categoryTree, ' ', false))
             }
 
             return terms
         })
         .flat()
+}
+
+/**
+ * Creates a new HTML node for given term text, and adds a listener which calls
+ * given closure when user updates category.
+ *
+ * @param {array} categoryTree Global tree of all categories
+ * @param {string} text The term text
+ * @param {(value: number) => void} selectChanged A hook for when user selects category
+ * @return {HTMLDivElement}
+ */
+function createCategorizableNode(categoryTree, text, selectChanged) {
+    const termNode = document.createElement('div')
+    termNode.classList.add('is-categorizable')
+    termNode.classList.add('is-cat-0')
+
+    const categoryNode = document.createElement('div')
+    categoryNode.classList.add('category')
+    termNode.appendChild(categoryNode)
+
+    const termNameNode = document.createElement('div')
+    termNameNode.textContent = text
+    termNode.appendChild(termNameNode)
+
+    const selectNode = document.createElement('div')
+    selectNode.classList.add('select-category')
+    selectNode.classList.add('hidden')
+
+    const select = document.createElement('select')
+    for (const cat of categoryTree) {
+        if (cat.hasOwnProperty('children')) {
+            const optGroup = document.createElement('optgroup')
+            optGroup.setAttribute('label', cat.name)
+            for (const child of cat.children) {
+                optGroup.appendChild(
+                    createCategoryOption(child.id, child.name, child.shortName)
+                )
+            }
+            select.appendChild(optGroup)
+        } else {
+            select.appendChild(
+                createCategoryOption(cat.id, cat.name, cat.shortName)
+            )
+        }
+    }
+
+    selectNode.appendChild(select)
+    termNode.appendChild(selectNode)
+
+    // When the select input is changed, update the category appropriately.
+    select.addEventListener('change', (_) => {
+        selectNode.classList.add('hidden')
+        selectChanged(select.value)
+    })
+
+    // Shows the select category box when the term is clicked.
+    termNameNode.addEventListener('click', (_) => selectNode.classList.toggle('hidden'))
+
+    return termNode
+}
+
+/**
+ * Creates new HTML node for option.
+ *
+ * @param {number} id
+ * @param {string} name
+ * @param {string} shortName Appends this text to attribute "data-short-name"
+ */
+function createCategoryOption(id, name, shortName) {
+    const option = document.createElement('option')
+    option.setAttribute('value', id)
+    option.setAttribute('data-short-name', shortName)
+    option.text = name
+    return option
 }

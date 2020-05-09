@@ -31,6 +31,7 @@ mix ecto.migrate
 
 echo "\nTesting the installation..."
 mix test
+(cd assets && npm i && npm t)
 
 echo "\n Launching Phoenix web server..."
 # Start the phoenix web server

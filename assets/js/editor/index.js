@@ -4,105 +4,61 @@
 import { splitIntoTerms } from './Term'
 
 // ------------------------------- Constants -----------------------------------
-const CATEGORIES = [
-    { name: 'Bez kategorie', short: null, id: 0 },
+const CATEGORY_TREE = [
     {
-        name: 'Podmět',
-        short: 'Pod.',
+        id: 0,
+        name: 'Bez kategorie',
+        shortName: null,
+        class: null,
+    },
+    {
         id: 1,
+        name: 'Podmět',
+        shortName: 'Pod.',
+        classes: ['is-cat-1'],
     },
     {
-        group: 'Přísudek',
-        name: 'slovesný',
-        short: 'Př.',
-        id: 2
-    },
-    {
-        group: 'Přísudek',
-        name: 'jmenný',
-        short: 'Př. jm.',
-        id: 3
-    },
-    {
-        group: 'Přísudek',
-        name: 'slovesně jmenný',
-        short: 'Př. jm. se sp.',
-        id: 4
-    },
-    {
-        name: 'Dolněk',
-        short: 'Do.',
-        id: 5,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'místa',
-        short: 'Pří. urč. mís.',
-        id: 6,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'času',
-        short: 'Pří. urč. č.',
-        id: 7,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'způsobu',
-        short: 'Pří. urč. zp.',
-        id: 8,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'příčiny',
-        short: 'Pří. urč. příč.',
-        id: 9,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'míry',
-        short: 'Pří. urč. mír.',
-        id: 10,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'účelu',
-        short: 'Pří. urč. úč.',
-        id: 11,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'přípustky',
-        short: 'Pří. urč. příp.',
-        id: 12,
-    },
-    {
-        group: 'Příslovečné určení',
-        name: 'podmínky',
-        short: 'Pří. urč. pod.',
-        id: 13,
-    },
-    {
-        name: 'Předmět',
-        short: 'Před.',
-        id: 14,
-    },
-    {
-        group: 'Přívlastek',
+        name: 'Přísudek',
+        classes: ['is-cat-2'],
         children: [
-            {
-                group: 'Přívlastek',
-                name: 'shodný',
-                short: 'Přív. shod',
-                id: 15,
-            },
-            {
-                group: 'Přívlastek',
-                name: 'neshodný',
-                short: 'Přív. neshod',
-                id: 16,
-            },
-        ]
+            { name: 'slovesný', shortName: 'Př.', id: 2 },
+            { name: 'jmenný', shortName: 'Př. jm.', id: 3 },
+            { name: 'slovesně jmenný', shortName: 'Př. jm. se sp.', id: 4 },
+        ],
+    },
+    {
+        id: 5,
+        name: 'Doplněk',
+        shortName: 'Do.',
+        classes: ['is-cat-3'],
+    },
+    {
+        name: 'Příslovečné určení',
+        classes: ['is-cat-4'],
+        children: [
+            { name: 'místa', shortName: 'Pří. urč. mís.', id: 6 },
+            { name: 'času', shortName: 'Pří. urč. č.', id: 7 },
+            { name: 'způsobu', shortName: 'Pří. urč. zp.', id: 8 },
+            { name: 'příčiny', shortName: 'Pří. urč. příč.', id: 9 },
+            { name: 'míry', shortName: 'Pří. urč. mír.', id: 10 },
+            { name: 'účelu', shortName: 'Pří. urč. úč.', id: 11 },
+            { name: 'přípustky', shortName: 'Pří. urč. příp.', id: 12 },
+            { name: 'podmínky', shortName: 'Pří. urč. pod.', id: 13 },
+        ],
+    },
+    {
+        id: 14,
+        name: 'Předmět',
+        shortName: 'Před.',
+        classes: ['is-cat-5'],
+    },
+    {
+        name: 'Přívlastek',
+        classes: ['is-cat-6'],
+        children: [
+            { name: 'shodný', shortName: 'Přív. shod.', id: 15 },
+            { name: 'neshodný', shortName: 'Přív. neshod.', id: 16 },
+        ],
     },
 ]
 
@@ -142,18 +98,18 @@ const hints = {
 
 // TODO: My phone does not support this event very well.
 input.addEventListener('keydown', (e) => {
-    if (e.code === 'Enter' && categorizer.style.display !== 'block') {
+    if (e.code === 'Enter' && categorizer.classList.contains('hidden')) {
         e.preventDefault()
         // And we hide the third hint.
-        hints.pressEnter.el.style.display = 'none'
+        hints.pressEnter.el.classList.add('hidden')
 
         // Grab all terms from the sentence.
-        const terms = splitIntoTerms(input.textContent)
+        const terms = splitIntoTerms(CATEGORY_TREE, input.textContent)
         for (const term of terms) {
-            categorizer.appendChild(term.termNode(CATEGORIES))
+            categorizer.appendChild(term.node)
         }
-        input.style.display = 'none'
-        categorizer.style.display = 'block'
+        input.classList.add('hidden')
+        categorizer.classList.remove('hidden')
     }
 })
 
@@ -162,9 +118,9 @@ input.addEventListener('keypress', () => {
         hints.startTyping.isDisplayed = false
         // TODO: Animate fade out.
         setTimeout(() => {
-            hints.startTyping.el.style.display = 'none'
+            hints.startTyping.el.classList.add('hidden')
             // We swap the first hint for another one.
-            setTimeout(() => hints.pressEnter.el.style.display = 'block', ACTION_TIMEOUT_MS)
+            setTimeout(() => hints.pressEnter.el.classList.remove('hidden'), ACTION_TIMEOUT_MS)
         }, ACTION_TIMEOUT_MS)
 
     }

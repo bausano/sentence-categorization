@@ -9,6 +9,10 @@ body {
     margin: 0;
 }
 
+.hidden {
+    display: none;
+}
+
 /* The div with the main sentence. */
 .sentence-size {
     /* Mobile sizes. */
@@ -40,3 +44,4 @@ body {
 @import 'editor.css';
 
 @import 'categorizer.css';
+

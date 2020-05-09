@@ -1,55 +1,39 @@
 import { expect } from 'chai'
-import { Term, splitIntoTerms } from '../js/editor/Term'
+import { splitIntoTerms } from '../js/editor/Term'
 
 describe('splitIntoTerms', () => {
     it('splits words by space', () => {
-        expect(splitIntoTerms('Mary had a little lamb'))
-            .to.deep.equal([c('Mary'), n(' '), c('had'), n(' '), c('a'), n(' '), c('little'), n(' '), c('lamb')])
+        expect(splitIntoTerms([], 'Mary had a little lamb').map(t => t.text))
+            .to.deep.equal(['Mary', ' ', 'had', ' ', 'a', ' ', 'little', ' ', 'lamb'])
     })
 
     it('considers comma as standalone term', () => {
-        expect(splitIntoTerms('Rather odd, isn\'t it'))
-            .to.deep.equal([c('Rather'), n(' '), c('odd'), n(','), n(' '), c('isn\'t'), n(' '), c('it')])
+        expect(splitIntoTerms([], 'Rather odd, isn\'t it').map(t => t.text))
+            .to.deep.equal(['Rather', ' ', 'odd', ',', ' ', 'isn\'t', ' ', 'it'])
     })
 
     it('considers question marks as standalone term', () => {
-        expect(splitIntoTerms('What hath God wrought?'))
-            .to.deep.equal([c('What'), n(' '), c('hath'), n(' '), c('God'), n(' '), c('wrought'), n('?')])
+        expect(splitIntoTerms([], 'What hath God wrought?').map(t => t.text))
+            .to.deep.equal(['What', ' ', 'hath', ' ', 'God', ' ', 'wrought', '?'])
     })
 
     it('considers exclamation marks as standalone term', () => {
-        expect(splitIntoTerms('Boom!'))
-            .to.deep.equal([c('Boom'), n('!')])
+        expect(splitIntoTerms([], 'Boom!').map(t => t.text))
+            .to.deep.equal(['Boom', '!'])
     })
 
     it('considers dot as standalone term', () => {
-        expect(splitIntoTerms('Splash.'))
-            .to.deep.equal([c('Splash'), n('.')])
+        expect(splitIntoTerms([], 'Splash.').map(t => t.text))
+            .to.deep.equal(['Splash', '.'])
     })
 
     it('filters out multiple spaces', () => {
-        expect(splitIntoTerms('Here    there'))
-            .to.deep.equal([c('Here'), n(' '), c('there')])
+        expect(splitIntoTerms([], 'Here    there').map(t => t.text))
+            .to.deep.equal(['Here', ' ', 'there'])
     })
 
     it('filters out new lines', () => {
-        expect(splitIntoTerms('\n After new line'))
-            .to.deep.equal([c('After'), n(' '), c('new'), n(' '), c('line')])
+        expect(splitIntoTerms([], '\n After new line').map(t => t.text))
+            .to.deep.equal(['After', ' ', 'new', ' ', 'line'])
     })
 })
-
-/**
- * Creates a new categorizable term.
- * @param {string} word
- */
-function c(word) {
-    return new Term(word, true)
-}
-
-/**
- * Creates a new not categorizable term.
- * @param {string} text
- */
-function n(text) {
-    return new Term(text, false)
-}
