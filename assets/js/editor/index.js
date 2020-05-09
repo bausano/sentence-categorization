@@ -73,6 +73,9 @@ const HINT_START_TYPING_CLASS = 'start-typing'
 // The class attribute of child of HINT_ID which informs the user that they can
 // press enter to proceed.
 const HINT_PRESS_ENTER_CLASS = 'press-enter'
+// The class attribute of child of HINT_ID which informs the user that they can
+// start clicking/hovering/selecting the words and categorize them.
+const HINT_START_CATEGORIZING = 'start-categorizing'
 // There are some actions that happen on the page, like displaying or hiding the
 // hints. Unless they're crucial in timing, we can use the default timing value.
 const ACTION_TIMEOUT_MS = 1500
@@ -89,9 +92,8 @@ const hints = {
         el: hint.querySelector(`.${HINT_START_TYPING_CLASS}`),
         isDisplayed: true,
     },
-    pressEnter: {
-        el: hint.querySelector(`.${HINT_PRESS_ENTER_CLASS}`),
-    },
+    pressEnter: hint.querySelector(`.${HINT_PRESS_ENTER_CLASS}`),
+    startCategorizing: hint.querySelector(`.${HINT_START_CATEGORIZING}`),
 }
 
 // ------------------------------- Listeners -----------------------------------
@@ -101,7 +103,8 @@ input.addEventListener('keydown', (e) => {
     if (e.code === 'Enter' && categorizer.classList.contains('hidden')) {
         e.preventDefault()
         // And we hide the third hint.
-        hints.pressEnter.el.classList.add('hidden')
+        hints.pressEnter.classList.add('hidden')
+        hint.removeChild(hints.pressEnter)
 
         // Grab all terms from the sentence.
         const terms = splitIntoTerms(CATEGORY_TREE, input.textContent)
@@ -110,18 +113,30 @@ input.addEventListener('keydown', (e) => {
         }
         input.classList.add('hidden')
         categorizer.classList.remove('hidden')
+        // TODO: Animate fadeout.
+        setTimeout(() => {
+            hints.startCategorizing.classList.remove('hidden')
+
+            // And hide the hint after a bit again.
+            setTimeout(() => {
+                hints.startCategorizing.classList.add('hidden')
+                hint.removeChild(hints.startCategorizing)
+            }, 3 * ACTION_TIMEOUT_MS)
+        }, ACTION_TIMEOUT_MS)
     }
 })
 
 input.addEventListener('keypress', () => {
+    // TODO: Animate fade out.
     if (hints.startTyping.isDisplayed) {
         hints.startTyping.isDisplayed = false
-        // TODO: Animate fade out.
         setTimeout(() => {
-            hints.startTyping.el.classList.add('hidden')
             // We swap the first hint for another one.
-            setTimeout(() => hints.pressEnter.el.classList.remove('hidden'), ACTION_TIMEOUT_MS)
-        }, ACTION_TIMEOUT_MS)
+            setTimeout(() => hints.pressEnter.classList.remove('hidden'), ACTION_TIMEOUT_MS)
 
+            // Remove the previous one.
+            hints.startTyping.el.classList.add('hidden')
+            hint.removeChild(hints.startTyping.el)
+        }, ACTION_TIMEOUT_MS)
     }
 })

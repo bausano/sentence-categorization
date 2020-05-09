@@ -6,7 +6,11 @@
                 <br>
             </div>
             <div class="press-enter hidden">
-                <%= gettext "Press enter when you're ready to mark sentence elements" %>
+                &#9166;
+                <%= gettext "Press enter when you're ready to categorize sentence elements" %>
+            </div>
+            <div class="start-categorizing hidden">
+                <%= gettext "Hover, click or highlight the words to categorize them" %>
             </div>
         </div>
         <div
